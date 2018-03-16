@@ -1,0 +1,33 @@
+body{font-family: 'SimSun'}
+h2{color: crimson}
+#myheader{
+    /*position: relative;
+    top: 10px;
+    right: 50px;*/
+    width: 500px;
+    height: 22px;
+    /*background: url('http://192.168.2.105:8999/css/sg.jpg') no-repeat;*/
+    border: 1px solid #000000;
+}
+#signImg{
+    position: absolute;
+    top: 0;
+    right:0;
+    height: 151px;
+    width: 151px;
+    background: url('http://192.168.2.105:8999/css/sg.jpg') no-repeat;
+}
+table, th , td  {
+    border: 1px solid grey;
+    border-collapse: collapse;
+    padding: 5px;
+}
+table tr:nth-child(odd) {
+    background-color: #f1f1f1;
+}
+table tr:nth-child(even) {
+    background-color: #ffffff;
+}
+#input1{
+    border-bottom: 1px solid #000000;
+}
