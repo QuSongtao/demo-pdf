@@ -2,12 +2,10 @@
 <html>
 <head lang="en">
     <title>Spring Boot Demo - PDF</title>
-    <link href="http://192.168.2.105:8998/css/index.css" rel="stylesheet" type="text/css"/>
-    <script type="text/javascript" src="http://192.168.2.105:8998/lib/jquery-1.12.4.min.js"></script>
-    <script type="text/javascript" src="http://192.168.2.105:8998/js/pdfIndex.js"></script>
+    <link href="http://localhost:8999/css/index.css" rel="stylesheet" type="text/css"/>
     <style>
         @page {
-            size: 420mm 297mm; /*设置纸张大小:A4(210mm 297mm)、A3(297mm 420mm) 横向则反过来*/
+            size: 210mm 297mm; /*设置纸张大小:A4(210mm 297mm)、A3(297mm 420mm) 横向则反过来*/
             margin: 0.25in;
             padding: 1em;
             @bottom-center{
@@ -26,17 +24,21 @@
         }
     </style>
 </head>
-<body>
-1.标题
+<body style="font-family: 宋体">
+<div>1.标题-中文</div>
 <h2>${title}</h2>
-2.按钮
+
+<div>2.按钮:按钮的边框需要写css渲染</div>
 <button class="a" style="border: 1px solid #000000"> click me t-p</button>
 <div id="divsub"></div>
-3.div
+
+<div>3.普通div</div>
 <div id="myheader">Alice's Adventures in Wonderland</div>
-4.图片
+
+<div>4.图片 绝对定位到左上角(注意:图片必须用全路径或者http://开头的路径,否则无法显示)</div>
 <div id="signImg"></div>
-5.表格
+
+<div>5.普通table表格</div>
 <div>
     <table>
         <tr>
@@ -63,7 +65,8 @@
     </table>
 
 </div>
-6.input
+
+<div>6.input控件,边框需要写css渲染 (在模板中一般不用input,因为不存在输入操作)</div>
 <div>
     <label>姓名:</label>
     <input id="input1" aria-label="dasdasd" type="text" value="123你是"/>
