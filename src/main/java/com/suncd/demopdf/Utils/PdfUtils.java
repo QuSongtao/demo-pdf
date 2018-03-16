@@ -6,6 +6,7 @@ package com.suncd.demopdf.Utils;
 
 import com.lowagie.text.pdf.BaseFont;
 import freemarker.template.Template;
+import freemarker.template.TemplateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
@@ -18,10 +19,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.OutputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 
@@ -40,34 +38,33 @@ public class PdfUtils {
     /**
      * 按模板和参数生成html字符串,再转换为flying-saucer识别的Document
      *
-     * @param templateName  freemarker模板名称
-     * @param variables     freemarker模板参数
-     * @return Document
-     * @throws Exception 模板不存在异常、IO异常
-     */
-    private static Document generateDoc(FreeMarkerConfigurer configurer, String templateName, Map<String, Object> variables) throws Exception {
-        Template tp = configurer.getConfiguration().getTemplate(templateName);
-        StringWriter stringWriter = new StringWriter();
-        BufferedWriter writer = new BufferedWriter(stringWriter);
-        tp.process(variables, writer);
-        String htmlStr = stringWriter.toString();
-        writer.flush();
-        writer.close();
-        return getDoc(htmlStr);
-    }
-
-    /**
-     * 根据html字符串生成Document
-     *
-     * @param htmlStr html字符串
+     * @param templateName freemarker模板名称
+     * @param variables    freemarker模板参数
      * @return Document
      */
-    private static Document getDoc(String htmlStr) {
+    private static Document generateDoc(FreeMarkerConfigurer configurer, String templateName, Map<String, Object> variables)  {
+        Template tp;
         try {
+            tp = configurer.getConfiguration().getTemplate(templateName);
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+            return null;
+        }
+
+        StringWriter stringWriter = new StringWriter();
+        try(BufferedWriter writer = new BufferedWriter(stringWriter)) {
+            try {
+                tp.process(variables, writer);
+                writer.flush();
+            } catch (TemplateException e) {
+                LOGGER.error("模板不存在或者路径错误", e);
+            } catch (IOException e) {
+                LOGGER.error("IO异常", e);
+            }
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            return builder.parse(new ByteArrayInputStream(htmlStr.getBytes()));
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(),e);
+            return builder.parse(new ByteArrayInputStream(stringWriter.toString().getBytes()));
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(), e);
             return null;
         }
     }
@@ -75,14 +72,14 @@ public class PdfUtils {
     /**
      * 核心: 根据freemarker模板生成pdf文档
      *
-     * @param configurer    freemarker配置
-     * @param templateName  freemarker模板名称
-     * @param out           输出流
-     * @param listVars      freemarker模板参数
+     * @param configurer   freemarker配置
+     * @param templateName freemarker模板名称
+     * @param out          输出流
+     * @param listVars     freemarker模板参数
      * @throws Exception 模板无法找到、模板语法错误、IO异常
      */
     private static void generateAll(FreeMarkerConfigurer configurer, String templateName, OutputStream out, List<Map<String, Object>> listVars) throws Exception {
-        if(CollectionUtils.isEmpty(listVars)){
+        if (CollectionUtils.isEmpty(listVars)) {
             LOGGER.warn("警告:freemarker模板参数为空!");
             return;
         }
@@ -103,7 +100,7 @@ public class PdfUtils {
             Document docAppend = generateDoc(configurer, templateName, listVars.get(i));
             renderer.setDocument(docAppend, null);
             renderer.layout();
-            renderer.writeNextDocument(); //写下一个pdf
+            renderer.writeNextDocument(); //写下一个pdf页面
         }
         renderer.finishPDF(); //完成pdf写入
     }
@@ -118,19 +115,20 @@ public class PdfUtils {
      * @param fileName     下载文件名称(带文件扩展名后缀)
      */
     public static void download(FreeMarkerConfigurer configurer, String templateName, List<Map<String, Object>> listVars, HttpServletResponse response, String fileName) {
-        ServletOutputStream out;
+        // 设置编码、文件ContentType类型、文件头、下载文件名
+        response.setCharacterEncoding("utf-8");
+        response.setContentType("multipart/form-data");
         try {
-            // 设置编码、文件ContentType类型、文件头、下载文件名
-            response.setCharacterEncoding("utf-8");
-            response.setContentType("multipart/form-data");
             response.setHeader("Content-Disposition", "attachment;fileName=" +
                     new String(fileName.getBytes("gb2312"), "ISO8859-1"));
-            out = response.getOutputStream();
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        try (ServletOutputStream out = response.getOutputStream()) {
             generateAll(configurer, templateName, out, listVars);
             out.flush();
-            out.close();
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(),e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -143,14 +141,11 @@ public class PdfUtils {
      * @param response     HttpServletResponse
      */
     public static void preview(FreeMarkerConfigurer configurer, String templateName, List<Map<String, Object>> listVars, HttpServletResponse response) {
-        ServletOutputStream out;
-        try {
-            out = response.getOutputStream();
+        try (ServletOutputStream out = response.getOutputStream()) {
             generateAll(configurer, templateName, out, listVars);
             out.flush();
-            out.close();
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(),e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 }

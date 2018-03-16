@@ -15,7 +15,7 @@ h2{color: crimson}
     right:0;
     height: 151px;
     width: 151px;
-    background: url('http://192.168.2.105:8999/css/sg.jpg') no-repeat;
+    background: url('http://localhost:8999/imgs/sg.jpg') no-repeat;
 }
 table, th , td  {
     border: 1px solid grey;

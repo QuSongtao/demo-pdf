@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 功能：XXXX
+ * 功能：pdf预览、下载
  *
  * @author qust
  * @version 1.0 2018/2/23 9:35
@@ -27,32 +27,39 @@ import java.util.Map;
 @Controller
 @RequestMapping(value = "/pdf")
 public class PdfController {
+
     @Autowired
     private FreeMarkerConfigurer configurer;
 
-    @RequestMapping(value = "/hello")
-    public ModelAndView index(ModelAndView modelAndView) {
-        modelAndView.setViewName("pdfIndex");
-//        modelAndView.setViewName("com\\suncd\\demopdf\\template\\pdfIndex");
-        modelAndView.addObject("title", "cgx1113");
-        return modelAndView;
-    }
-
+    /**
+     * pdf预览
+     *
+     * @param request  HttpServletRequest
+     * @param response HttpServletResponse
+     */
     @RequestMapping(value = "/preview", method = RequestMethod.GET)
     public void preview(HttpServletRequest request, HttpServletResponse response) {
+        // 构造freemarker模板引擎参数,listVars.size()个数对应pdf页数
         List<Map<String,Object>> listVars = new ArrayList<>();
         Map<String,Object> variables = new HashMap<>();
-        variables.put("title","hello hcgx sos啊!");
+        variables.put("title","测试预览ASGX!");
         listVars.add(variables);
-        PdfUtils.preview(configurer,"pdfIndex.ftl",listVars,response);
+
+        PdfUtils.preview(configurer,"pdfPage.ftl",listVars,response);
     }
 
+    /**
+     * pdf下载
+     *
+     * @param request  HttpServletRequest
+     * @param response HttpServletResponse
+     */
     @RequestMapping(value = "/download", method = RequestMethod.GET)
     public void download(HttpServletRequest request, HttpServletResponse response) {
         List<Map<String,Object>> listVars = new ArrayList<>();
         Map<String,Object> variables = new HashMap<>();
-        variables.put("title","hcgxsos啊!");
+        variables.put("title","测试下载ASGX!");
         listVars.add(variables);
-        PdfUtils.download(configurer,"pdfIndex.ftl",listVars,response,"测试中文.pdf");
+        PdfUtils.download(configurer,"pdfPage.ftl",listVars,response,"测试中文.pdf");
     }
 }
