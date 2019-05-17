@@ -24,7 +24,9 @@
         }
     </style>
 </head>
-<body style="font-family: 宋体">
+<#-- 这样配置不中文不会显示 -->
+<#--<body style="font-family: 宋体">-->
+<body style="font-family: 'SimSun'">
 <div>1.标题-中文</div>
 <h2>${title}</h2>
 
