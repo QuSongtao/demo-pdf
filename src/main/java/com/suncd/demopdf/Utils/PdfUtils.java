@@ -36,12 +36,35 @@ public class PdfUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfUtils.class);
 
     /**
+     * 按模板和参数生成html字符串
+     *
+     * @param templateName freemarker模板名称
+     * @param variables    freemarker模板参数
+     * @return String
+     *
+     * 解决打包后Windows下调用出现空指针问题
+     */
+    private static String generateDocString(FreeMarkerConfigurer configurer, String templateName, Map<String, Object> variables){
+        StringWriter writer = new StringWriter();
+        try {
+            Template template = configurer.getConfiguration().getTemplate(templateName);
+            template.process(variables, writer);
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+        }
+        writer.flush();
+        return writer.toString();
+    }
+    /**
      * 按模板和参数生成html字符串,再转换为flying-saucer识别的Document
      *
      * @param templateName freemarker模板名称
      * @param variables    freemarker模板参数
      * @return Document
+     *
+     * Deprecated暂停使用, 调整为generateDocString()进行生成
      */
+    @Deprecated
     private static Document generateDoc(FreeMarkerConfigurer configurer, String templateName, Map<String, Object> variables)  {
         Template tp;
         try {
@@ -50,7 +73,6 @@ public class PdfUtils {
             LOGGER.error(e.getMessage(), e);
             return null;
         }
-
         StringWriter stringWriter = new StringWriter();
         try(BufferedWriter writer = new BufferedWriter(stringWriter)) {
             try {
@@ -76,7 +98,7 @@ public class PdfUtils {
      * @param templateName freemarker模板名称
      * @param out          输出流
      * @param listVars     freemarker模板参数
-     * @throws Exception 模板无法找到、模板语法错误、IO异常
+     * @throws Exception   模板无法找到、模板语法错误、IO异常
      */
     private static void generateAll(FreeMarkerConfigurer configurer, String templateName, OutputStream out, List<Map<String, Object>> listVars) throws Exception {
         if (CollectionUtils.isEmpty(listVars)) {
@@ -85,8 +107,9 @@ public class PdfUtils {
         }
 
         ITextRenderer renderer = new ITextRenderer();
-        Document doc = generateDoc(configurer, templateName, listVars.get(0));
-        renderer.setDocument(doc, null);
+//        Document doc = generateDoc(configurer, templateName, listVars.get(0));
+        String doc = generateDocString(configurer, templateName, listVars.get(0));
+        renderer.setDocumentFromString(doc);
         //设置字符集(宋体),此处必须与模板中的<body style="font-family: SimSun">一致,区分大小写,不能写成汉字"宋体"
         ITextFontResolver fontResolver = renderer.getFontResolver();
         fontResolver.addFont("simsun.ttc", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
@@ -97,8 +120,8 @@ public class PdfUtils {
         //根据参数集个数循环调用模板,追加到同一个pdf文档中
         //(注意:此处从1开始,因为第0是创建pdf,从1往后则向pdf中追加内容)
         for (int i = 1; i < listVars.size(); i++) {
-            Document docAppend = generateDoc(configurer, templateName, listVars.get(i));
-            renderer.setDocument(docAppend, null);
+            String docAppend = generateDocString(configurer, templateName, listVars.get(i));
+            renderer.setDocumentFromString(docAppend);
             renderer.layout();
             renderer.writeNextDocument(); //写下一个pdf页面
         }
