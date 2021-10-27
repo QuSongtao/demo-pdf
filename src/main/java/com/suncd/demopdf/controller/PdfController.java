@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,7 +41,8 @@ public class PdfController {
         // 构造freemarker模板引擎参数,listVars.size()个数对应pdf页数
         List<Map<String,Object>> listVars = new ArrayList<>();
         Map<String,Object> variables = new HashMap<>();
-        variables.put("title","测试预览ASGX!");
+        variables.put("var1","xxxxxxx1");
+        variables.put("var2","xxxxxxxxxxxxx2");
         listVars.add(variables);
 
         PdfUtils.preview(configurer,"pdfPage.ftl",listVars,response);

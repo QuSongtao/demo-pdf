@@ -42,7 +42,7 @@
 		<dependency>
 			<groupId>org.xhtmlrenderer</groupId>
 			<artifactId>flying-saucer-pdf</artifactId>
-			<version>9.1.12</version>
+			<version>9.1.22</version>
 		</dependency>
 
 	</dependencies>
