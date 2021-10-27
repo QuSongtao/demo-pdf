@@ -10,6 +10,5 @@ SpringBoot + FreeMarker + FlyingSaucer 实现pdf在线预览下载
 
 # 交流方式
 微信：  
-![RUNOOB 图标](./src/main/resources/static/imgs/qst.png)
-
+![RUNOOB 图标](./src/main/resources/static/imgs/qst.png)  
 QQ：157195079
