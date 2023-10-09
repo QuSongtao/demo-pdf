@@ -25,6 +25,6 @@ http://localhost:8999
 5、接下来准备研究echarts的支持
 
 ## 交流方式
-微信：  
+微信： qust-cd
 ![RUNOOB 图标](src/main/resources/static/imgs/qst1.png)  
 QQ：157195079
